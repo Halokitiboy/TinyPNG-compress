@@ -1,10 +1,3 @@
-/*
- * @Date: 2020-01-08 09:48:18
- * @Author: xiazhengchun
- * @LastEditors  : xiazhengchun
- * @LastEditTime : 2020-01-09 15:58:38
- * @Description: 
- */
 const tinify = require('tinify')
 const clc = require("cli-color");
 const fs = require('fs')
