@@ -1,3 +1,10 @@
+/*
+ * @Date: 2020-01-08 09:48:18
+ * @Author: xiazhengchun
+ * @LastEditors  : xiazhengchun
+ * @LastEditTime : 2020-01-14 17:55:04
+ * @Description: 
+ */
 const tinify = require('tinify')
 const clc = require("cli-color");
 const fs = require('fs')
@@ -20,9 +27,19 @@ console.log(clc.red('不可压缩的图片列表(只能压缩jpeg/png格式得�
 console.log('==============================================')
 console.log(uncompressList.length ? clc.red(uncompressList):'暂无')
 console.log('==============================================')
-compressList.forEach((item)=>{
-    compressFn(sourceDir+item,item)
+
+promiseHandle(compressList).then(res=>{
+    console.log(res)
 })
+
+function promiseHandle(){
+    return new Promise((resolve,reject)=>{
+        compressList.forEach((item)=>{
+            compressFn(sourceDir+item,item)
+        })
+        resolve(true)
+    })
+}
 /**
  * @description: 压缩图片
  * @param {type} 
@@ -30,9 +47,23 @@ compressList.forEach((item)=>{
  */
 function compressFn(list,name){
     const source = tinify.fromFile(list);
-    source.toFile(`${outputDir}${name}`,function(res){
-        console.log(clc.greenBright(`${name} 压缩完成`))
-    });
+    return new Promise((resolve,reject)=>{
+        source.toFile(`${outputDir}${name}`,function(err){
+            if (err instanceof tinify.AccountError) {
+                console.log(clc.red('Verify your API key and account limit.'))
+                reject(err)
+              } else if (err instanceof tinify.ServerError) {
+                console.log(clc.red('Temporary issue with the Tinify API.'))
+                reject(err)
+              } else if (err instanceof tinify.ConnectionError) {
+                console.log(clc.red("A network connection error occurred."))
+                reject(err)
+              } else {
+                console.log(clc.greenBright(`${name} 压缩完成`))
+                resolve('压缩完成')
+              }
+        });
+    })
 }
 /**
  * @description: 清除之前得缓存图片
@@ -46,6 +77,6 @@ function clearDir(dir){
             console.log(err);
           }
         });
-      });
+    });
 }
 
